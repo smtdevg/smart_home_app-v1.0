@@ -1,6 +1,7 @@
 import 'package:app_smart_home/config/size_config.dart';
 import 'package:app_smart_home/provider/base_view.dart';
 import 'package:app_smart_home/view/home_view/body.dart';
+import 'package:app_smart_home/view/menu_view/menu.dart';
 import 'package:app_smart_home/view_models/home_viewmodel.dart';
 import 'package:app_smart_home/widget/nav_bar.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +138,7 @@ class HomePage extends StatelessWidget {
               ),
               drawer: SizedBox(
                   width: getProportionateScreenWidth(270),
-                  child: const HomePage()),
+                  child: const MenuPage()),
               body: TabBarView(
                 children: <Widget>[
                   Body(
@@ -154,7 +155,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              bottomNavigationBar: BottomNavBar(model: model),
+              // bottomNavigationBar: BottomNavBar(model: model),
             ),
           );
         });

@@ -37,6 +37,27 @@ class Body extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
+                      itsOn: model.isACON,
+                      switchButton: model.acSwitch,
+                      onTap: () {
+                        Navigator.of(context).pushNamed(ACPage.routeName);
+                      },
+                      iconAsset: 'assets/svg/ac.svg',
+                      device: 'AC',
+                      deviceCount: '1 device',
+                      switchFav: model.acFav,
+                      isFav: model.isACFav,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(getProportionateScreenHeight(5)),
+                    child: DarkContainer(
                       itsOn: model.isSwitch1On,
                       switchButton: model.Switch1,
                       onTap: () {
@@ -54,16 +75,16 @@ class Body extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
-                      itsOn: model.isACON,
-                      switchButton: model.acSwitch,
+                      itsOn: model.isSocket1On,
+                      switchButton: model.sk1Switch,
                       onTap: () {
-                        Navigator.of(context).pushNamed(ACPage.routeName);
+                        // Navigator.of(context).pushNamed(Socket.routeName);
                       },
-                      iconAsset: 'assets/svg/ac.svg',
-                      device: 'AC',
-                      deviceCount: '1 device',
-                      switchFav: model.acFav,
-                      isFav: model.isACFav,
+                      iconAsset: 'assets/svg/fan.svg',
+                      device: 'Socket 1',
+                      deviceCount: '1 devices',
+                      switchFav: model.socket1Fav,
+                      isFav: model.isSocket1Fav,
                     ),
                   ),
                 ),
@@ -95,21 +116,23 @@ class Body extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
-                      itsOn: model.isSocketOn,
-                      switchButton: model.skSwitch,
+                      itsOn: model.isSocket2On,
+                      switchButton: model.sk2Switch,
                       onTap: () {
                         // Navigator.of(context).pushNamed(Socket.routeName);
                       },
                       iconAsset: 'assets/svg/fan.svg',
-                      device: 'Socket',
+                      device: 'Socket 2',
                       deviceCount: '1 devices',
-                      switchFav: model.socketFav,
-                      isFav: model.isSocketFav,
+                      switchFav: model.socket2Fav,
+                      isFav: model.isSocket2Fav,
                     ),
                   ),
                 ),
               ],
             ),
+
+
             Padding(
               padding: EdgeInsets.all(getProportionateScreenHeight(8)),
               // child: const AddNewDevice(),
