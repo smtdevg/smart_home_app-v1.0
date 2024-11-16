@@ -13,7 +13,7 @@ class MenuPage extends StatelessWidget {
         toolbarHeight: getProportionateScreenHeight(50),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        title: Text('Menu'),
+        title: const Text('Menu'),
       ),
       body: ListView(
         children: [

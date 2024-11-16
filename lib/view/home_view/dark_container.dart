@@ -13,7 +13,7 @@ class DarkContainer extends StatelessWidget {
   final bool isFav;
   final VoidCallback switchFav;
   const DarkContainer({
-    Key? key,
+    super.key,
     required this.iconAsset,
     required this.onTap,
     required this.device,
@@ -22,7 +22,7 @@ class DarkContainer extends StatelessWidget {
     required this.switchButton,
     required this.isFav,
     required this.switchFav,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

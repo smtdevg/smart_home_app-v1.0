@@ -3,26 +3,19 @@ import 'package:app_smart_home/provider/base_view.dart';
 import 'package:app_smart_home/view/home_view/body.dart';
 import 'package:app_smart_home/view/menu_view/menu.dart';
 import 'package:app_smart_home/view_models/home_viewmodel.dart';
-import 'package:app_smart_home/widget/nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
-import 'dart:math';
 
 class HomePage extends StatelessWidget {
   static String routeName = '/home-page';
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     SizeConfig.init(context);
     return BaseView<HomePageViewModel>(
-        onModelReady: (model) => {
-              model.generateRandomNumber(),
-            },
+        onModelReady: (model) => {},
         builder: (context, model, child) {
           return DefaultTabController(
             length: 3,
@@ -105,6 +98,11 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(
+                    getProportionateScreenHeight(
+                      35,
+                    ),
+                  ),
                   child: TabBar(
                       isScrollable: true,
                       unselectedLabelColor: Colors.white.withOpacity(0.3),
@@ -129,11 +127,6 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ]),
-                  preferredSize: Size.fromHeight(
-                    getProportionateScreenHeight(
-                      35,
-                    ),
-                  ),
                 ),
               ),
               drawer: SizedBox(

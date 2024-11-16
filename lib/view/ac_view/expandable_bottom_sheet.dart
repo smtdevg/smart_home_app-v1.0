@@ -1,10 +1,8 @@
-import 'package:app_smart_home/config/size_config.dart';
 import 'package:app_smart_home/view_models/ac_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class ExpandableBottomSheet extends StatelessWidget {
-  const ExpandableBottomSheet({Key? key, required this.model})
-      : super(key: key);
+  const ExpandableBottomSheet({super.key, required this.model});
 
   final ACViewModel model;
 

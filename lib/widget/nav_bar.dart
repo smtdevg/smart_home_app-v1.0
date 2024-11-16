@@ -5,9 +5,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BottomNavBar extends StatelessWidget {
   const BottomNavBar({
-    Key? key,
+    super.key,
     required this.model,
-  }) : super(key: key);
+  });
 
   final HomePageViewModel model;
   @override

@@ -4,7 +4,7 @@ import 'package:app_smart_home/provider/getit.dart';
 import 'package:app_smart_home/service/navigation_service.dart';
 
 class BaseModel extends ChangeNotifier {
-  final navigationService = getIt<NavigationService>;
+  final navigationService = getIt.call<NavigationService>;
   ViewState _state = ViewState.idle;
 
   ViewState get state => _state;

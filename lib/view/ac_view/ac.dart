@@ -6,7 +6,7 @@ import 'package:app_smart_home/view_models/ac_viewmodel.dart';
 class ACPage extends StatelessWidget {
   static String routeName = '/ac-page';
 
-  const ACPage({Key? key}) : super(key: key);
+  const ACPage({super.key});
 
   @override
   Widget build(BuildContext context) {

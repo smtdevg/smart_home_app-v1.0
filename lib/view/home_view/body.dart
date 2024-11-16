@@ -8,7 +8,7 @@ import 'package:app_smart_home/view/ac_view/ac.dart';
 
 class Body extends StatelessWidget {
   final HomePageViewModel model;
-  const Body({Key? key, required this.model}) : super(key: key);
+  const Body({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class Body extends StatelessWidget {
                       iconAsset: 'assets/svg/ac.svg',
                       device: 'AC',
                       deviceCount: '1 device',
-                      switchFav: model.acFav,
+                      switchFav: model.acFav ?? () {},
                       isFav: model.isACFav,
                     ),
                   ),
@@ -66,7 +66,7 @@ class Body extends StatelessWidget {
                       iconAsset: 'assets/svg/light.svg',
                       device: 'Switch 1',
                       deviceCount: 'Lamp',
-                      switchFav: model.switch1Fav,
+                      switchFav: model.switch1Fav ?? () {},
                       isFav: model.isSwitch1Fav,
                     ),
                   ),
@@ -76,14 +76,14 @@ class Body extends StatelessWidget {
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
                       itsOn: model.isSocket1On,
-                      switchButton: model.sk1Switch,
+                      switchButton: model.sk1Switch ?? () {},
                       onTap: () {
                         // Navigator.of(context).pushNamed(Socket.routeName);
                       },
                       iconAsset: 'assets/svg/fan.svg',
                       device: 'Socket 1',
                       deviceCount: '1 devices',
-                      switchFav: model.socket1Fav,
+                      switchFav: model.socket1Fav ?? () {},
                       isFav: model.isSocket1Fav,
                     ),
                   ),
@@ -100,14 +100,14 @@ class Body extends StatelessWidget {
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
                       itsOn: model.isSwitch2On,
-                      switchButton: model.Switch2,
+                      switchButton: model.Switch2 ?? () {},
                       onTap: () {
                         // Navigator.of(context).pushNamed(Socket.routeName);
                       },
                       iconAsset: 'assets/svg/light.svg',
                       device: 'Switch 2',
                       deviceCount: '1 device',
-                      switchFav: model.switch2Fav,
+                      switchFav: model.switch2Fav ?? () {},
                       isFav: model.isSwitch2Fav,
                     ),
                   ),
@@ -117,21 +117,20 @@ class Body extends StatelessWidget {
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
                       itsOn: model.isSocket2On,
-                      switchButton: model.sk2Switch,
+                      switchButton: model.sk2Switch ?? () {},
                       onTap: () {
                         // Navigator.of(context).pushNamed(Socket.routeName);
                       },
                       iconAsset: 'assets/svg/fan.svg',
                       device: 'Socket 2',
                       deviceCount: '1 devices',
-                      switchFav: model.socket2Fav,
+                      switchFav: model.socket2Fav ?? () {},
                       isFav: model.isSocket2Fav,
                     ),
                   ),
                 ),
               ],
             ),
-
 
             Padding(
               padding: EdgeInsets.all(getProportionateScreenHeight(8)),

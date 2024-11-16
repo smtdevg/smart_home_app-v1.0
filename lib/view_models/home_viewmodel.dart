@@ -1,82 +1,151 @@
-import 'package:app_smart_home/models/sk_model.dart';
 import 'package:app_smart_home/provider/base_model.dart';
-import 'package:app_smart_home/service/api_service.dart';
 import 'package:app_smart_home/view/home_view/home.dart';
 import 'package:app_smart_home/view/notif_view/notif.dart';
 import 'package:app_smart_home/view/setting_view/setting.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:math';
+import 'package:app_smart_home/service/api_service.dart';
+import 'package:app_smart_home/service/websocket_service.dart';
 
 class HomePageViewModel extends BaseModel {
+  final ApiService apiService;
+  final WebSocketService webSocketService;
+
   int selectedIndex = 0;
-  int randomNumber = 1;
   final PageController pageController = PageController();
+
+  // Trạng thái thiết bị
   bool isSocket1On = false;
   bool isSocket2On = false;
   bool isACON = false;
   bool isSwitch1On = false;
   bool isSwitch2On = false;
+
+  // Yêu thích thiết bị
   bool isSwitch1Fav = false;
   bool isSwitch2Fav = false;
   bool isSocket1Fav = false;
   bool isSocket2Fav = false;
   bool isACFav = false;
 
-  void generateRandomNumber() {
-    randomNumber = Random().nextInt(8);
+  HomePageViewModel({
+    required this.apiService,
+    required this.webSocketService,
+  });
+
+  // Getter bật/tắt thiết bị, gọi toggleDevice
+  get acSwitch => () => toggleDevice("1", "isACON", isACON);
+  get Switch1 => () => toggleDevice("2", "isSwitch1On", isSwitch1On);
+  get sk1Switch => () => toggleDevice("3", "isSocket1On", isSocket1On);
+  get Switch2 => () => toggleDevice("4", "isSwitch2On", isSwitch2On);
+  get sk2Switch => () => toggleDevice("5", "isSocket2On", isSocket2On);
+
+  // Getter quản lý yêu thích
+  get acFav => () => toggleFavorite("isACFav");
+  get switch1Fav => () => toggleFavorite("isSwitch1Fav");
+  get socket1Fav => () => toggleFavorite("isSocket1Fav");
+  get switch2Fav => () => toggleFavorite("isSwitch2Fav");
+  get socket2Fav => () => toggleFavorite("isSocket2Fav");
+
+  // Lấy trạng thái thiết bị từ API
+  Future<void> fetchDeviceStatuses() async {
+    try {
+      final devices = [
+        {"id": "1", "key": "isACON"},
+        {"id": "2", "key": "isSwitch1On"},
+        {"id": "3", "key": "isSocket1On"},
+        {"id": "4", "key": "isSwitch2On"},
+        {"id": "5", "key": "isSocket2On"}
+      ];
+
+      for (var device in devices) {
+        final status = await apiService.getDeviceStatus(device["id"]!);
+        final buttonStatus = status['status']['button1'] as bool;
+        updateState(device["key"]!, buttonStatus);
+      }
+
+      notifyListeners();
+    } catch (e) {
+      print('Failed to fetch device statuses: $e');
+    }
+  }
+
+  // Cập nhật trạng thái thiết bị cục bộ
+  void updateState(String key, bool status) {
+    switch (key) {
+      case "isACON":
+        isACON = status;
+        break;
+      case "isSwitch1On":
+        isSwitch1On = status;
+        break;
+      case "isSocket1On":
+        isSocket1On = status;
+        break;
+      case "isSwitch2On":
+        isSwitch2On = status;
+        break;
+      case "isSocket2On":
+        isSocket2On = status;
+        break;
+    }
+  }
+
+  // Gửi trạng thái thiết bị qua WebSocket và xử lý lỗi
+  Future<void> toggleDevice(
+      String deviceId, String key, bool currentStatus) async {
+    final newStatus = !currentStatus;
+
+    // Cập nhật trạng thái cục bộ ngay lập tức
+    updateState(key, newStatus);
+    notifyListeners();
+
+    final model = {
+      "_id": deviceId,
+      "status": {"button1": newStatus}
+    };
+
+    try {
+      // Gửi trạng thái mới qua WebSocket
+      webSocketService.sendDeviceStatus(model);
+
+      // Gửi qua API để xác nhận
+      await apiService.updateDeviceStatus(deviceId, newStatus);
+      print("Device $deviceId status updated successfully.");
+    } catch (e) {
+      print("Failed to update device $deviceId status: $e");
+
+      // Nếu lỗi xảy ra, tự động đặt trạng thái về lại sau 1 giây
+      Future.delayed(const Duration(seconds: 1), () {
+        updateState(key, currentStatus);
+        notifyListeners();
+        print("Device $deviceId automatically reverted due to error.");
+      });
+    }
+  }
+
+  // Quản lý yêu thích thiết bị
+  void toggleFavorite(String key) {
+    switch (key) {
+      case "isSwitch1Fav":
+        isSwitch1Fav = !isSwitch1Fav;
+        break;
+      case "isSwitch2Fav":
+        isSwitch2Fav = !isSwitch2Fav;
+        break;
+      case "isSocket1Fav":
+        isSocket1Fav = !isSocket1Fav;
+        break;
+      case "isSocket2Fav":
+        isSocket2Fav = !isSocket2Fav;
+        break;
+      case "isACFav":
+        isACFav = !isACFav;
+        break;
+    }
     notifyListeners();
   }
 
-  void switch1Fav() {
-    isSwitch1Fav = !isSwitch1Fav;
-    notifyListeners();
-  }
-
-  void switch2Fav() {
-    isSwitch2Fav = !isSwitch2Fav;
-    notifyListeners();
-  }
-
-  void acFav() {
-    isACFav = !isACFav;
-    notifyListeners();
-  }
-
-  void socket1Fav() {
-    isSocket1Fav = !isSocket1Fav;
-    notifyListeners();
-  }
-  void socket2Fav() {
-    isSocket2Fav = !isSocket2Fav;
-    notifyListeners();
-  }
-
-
-  void acSwitch() {
-    isACON = !isACON;
-    notifyListeners();
-  }
-
-  void sk1Switch() {
-    isSocket1On = !isSocket1On;
-    notifyListeners();
-  }
-  void sk2Switch() {
-    isSocket2On = !isSocket2On;
-    notifyListeners();
-  }
-  void Switch1() {
-    isSwitch1On = !isSwitch1On;
-    notifyListeners();
-  }
-
-  void Switch2() {
-    isSwitch2On = !isSwitch2On;
-    notifyListeners();
-  }
-
-  ///On tapping bottom nav bar items
+  // Xử lý khi nhấn vào các mục trên bottom navigation bar
   void onItemTapped(BuildContext context, int index) {
     selectedIndex = index;
     switch (index) {

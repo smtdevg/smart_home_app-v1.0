@@ -12,33 +12,41 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  // Khai báo TextEditingController
-  final TextEditingController _serverAddressController =
-      TextEditingController();
-  String _serverAddress = ''; // Biến để lưu địa chỉ server
+  final TextEditingController _ipController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Đảm bảo giá trị được lấy từ Provider khi khởi tạo
+    final serverProvider =
+        Provider.of<ServerAddressProvider>(context, listen: false);
+    _ipController.text = serverProvider.ipAddress;
+  }
 
   @override
   void dispose() {
-    // Giải phóng controller khi không sử dụng nữa
-    _serverAddressController.dispose();
+    _ipController.dispose();
     super.dispose();
   }
 
-  void _saveServerAddress() {
-    // Lưu giá trị từ TextField vào biến
-    setState(() {
-      _serverAddress = _serverAddressController.text; // Lưu địa chỉ server
-    });
+  void _saveIpAddress() {
+    final newIp = _ipController.text.trim();
 
-    // Hiển thị thông báo hoặc thực hiện hành động khác
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Địa chỉ server đã lưu: $_serverAddress')),
-    );
+    if (RegExp(
+            r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$') // Kiểm tra định dạng IPv4 cơ bản
+        .hasMatch(newIp)) {
+      final serverProvider =
+          Provider.of<ServerAddressProvider>(context, listen: false);
+      serverProvider.setIpAddress(newIp);
 
-    // Gán lại giá trị cho controller để hiển thị trong TextField
-    _serverAddressController.text = _serverAddress;
-    Provider.of<ServerAddressProvider>(context, listen: false)
-        .setServerAddress(_serverAddress);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cập nhật địa chỉ IP thành công!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập địa chỉ IP hợp lệ!')),
+      );
+    }
   }
 
   @override
@@ -50,15 +58,15 @@ class _SettingPageState extends State<SettingPage> {
             toolbarHeight: getProportionateScreenHeight(50),
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.black),
-            title: Text('Network Setting'),
+            title: const Text('Network Setting'),
           ),
           Container(
             margin: const EdgeInsets.only(top: 20),
             alignment: Alignment.center,
-            child: Text('Server Address'),
+            child: const Text('IP Address'),
           ),
           Container(
-            margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             decoration: BoxDecoration(boxShadow: [
               BoxShadow(
                 color: const Color(0xff1d1617).withOpacity(0.11),
@@ -67,9 +75,9 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ]),
             child: TextField(
-              controller:
-                  _serverAddressController, // Gán controller vào TextField
+              controller: _ipController,
               decoration: InputDecoration(
+                hintText: '192.168.x.x',
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -82,8 +90,8 @@ class _SettingPageState extends State<SettingPage> {
           Container(
             margin: const EdgeInsets.all(10),
             child: OutlinedButton(
-              onPressed: _saveServerAddress, // Gọi hàm lưu khi nhấn button
-              child: Text('Save'),
+              onPressed: _saveIpAddress,
+              child: const Text('Save'),
             ),
           ),
         ],

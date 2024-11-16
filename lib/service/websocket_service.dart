@@ -1,22 +1,32 @@
 import 'dart:convert';
-import 'package:app_smart_home/provider/server.dart';
-import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService {
-  // String serverAddress = Provider.of<ServerAddressProvider>(context).serverAddress;
-  final WebSocketChannel channel = WebSocketChannel.connect(
-    Uri.parse('ws://192.168.30.155:1901'),
-  );
+  final String socketUrl;
+  late WebSocketChannel channel;
 
-  void sendData(Map<String, dynamic> data) {
-    final jsonData = jsonEncode(data);
-    channel.sink.add(jsonData);
+  WebSocketService(this.socketUrl) {
+    channel = WebSocketChannel.connect(Uri.parse(socketUrl));
   }
 
-  Stream<dynamic> get stream => channel.stream.map((data) => jsonDecode(data));
+  // Gửi trạng thái thiết bị qua WebSocket
+  void sendDeviceStatus(Map<String, dynamic> model) {
+    final json = jsonEncode(model);
+    channel.sink.add(json);
+    print("Sent via WebSocket: $json");
+  }
 
-  void dispose() {
+  // Nhận phản hồi từ server
+  void listenToUpdates(Function(dynamic) onMessage) {
+    channel.stream.listen((data) {
+      final message = jsonDecode(data);
+      print("Received via WebSocket: $message");
+      onMessage(message);
+    });
+  }
+
+  // Đóng WebSocket
+  void close() {
     channel.sink.close();
   }
 }
