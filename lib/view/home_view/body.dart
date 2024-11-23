@@ -1,10 +1,11 @@
-// import 'dart:io';
 import 'package:app_smart_home/view/home_view/dark_container.dart';
 import 'package:app_smart_home/view/home_view/home.dart';
 import 'package:app_smart_home/view_models/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:app_smart_home/config/size_config.dart';
 import 'package:app_smart_home/view/ac_view/ac.dart';
+
+import '../device_view/device.dart';
 
 class Body extends StatelessWidget {
   final HomePageViewModel model;
@@ -23,14 +24,15 @@ class Body extends StatelessWidget {
         ),
         child: Column(
           children: [
+            // Weather widget placeholder
             Padding(
               padding: EdgeInsets.all(getProportionateScreenHeight(5)),
-              // child: Weather(model: model),
             ),
+            // Placeholder for any additional widgets
             Padding(
               padding: EdgeInsets.all(getProportionateScreenHeight(5)),
-              // child: //wg (model: model),
             ),
+            // Row for Air Conditioner
             Row(
               children: [
                 Expanded(
@@ -43,15 +45,16 @@ class Body extends StatelessWidget {
                         Navigator.of(context).pushNamed(ACPage.routeName);
                       },
                       iconAsset: 'assets/svg/ac.svg',
-                      device: 'AC',
+                      device: 'Air Conditioner',
                       deviceCount: '1 device',
-                      switchFav: model.acFav ?? () {},
+                      switchFav: model.acFav,
                       isFav: model.isACFav,
                     ),
                   ),
                 ),
               ],
             ),
+            // Row for Switch 1 and Socket 1
             Row(
               children: [
                 Expanded(
@@ -61,12 +64,21 @@ class Body extends StatelessWidget {
                       itsOn: model.isSwitch1On,
                       switchButton: model.Switch1,
                       onTap: () {
-                        Navigator.of(context).pushNamed(HomePage.routeName);
+                        Navigator.pushNamed(
+                          context,
+                          DeviceSettingsPage.routeName,
+                          arguments: {
+                            'deviceId': '1',
+                            'deviceType': 'Switch',
+                            'deviceName': 'Living Room AC',
+                          },
+                        );
+
                       },
                       iconAsset: 'assets/svg/light.svg',
                       device: 'Switch 1',
-                      deviceCount: 'Lamp',
-                      switchFav: model.switch1Fav ?? () {},
+                      deviceCount: '1 device',
+                      switchFav: model.switch1Fav,
                       isFav: model.isSwitch1Fav,
                     ),
                   ),
@@ -76,23 +88,25 @@ class Body extends StatelessWidget {
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
                       itsOn: model.isSocket1On,
-                      switchButton: model.sk1Switch ?? () {},
+                      switchButton: model.sk1Switch,
                       onTap: () {
-                        // Navigator.of(context).pushNamed(Socket.routeName);
+                        // Add navigation or additional action here
                       },
                       iconAsset: 'assets/svg/fan.svg',
                       device: 'Socket 1',
-                      deviceCount: '1 devices',
-                      switchFav: model.socket1Fav ?? () {},
+                      deviceCount: '1 device',
+                      switchFav: model.socket1Fav,
                       isFav: model.isSocket1Fav,
                     ),
                   ),
                 ),
               ],
             ),
+            // Spacer
             Padding(
               padding: EdgeInsets.all(getProportionateScreenHeight(5)),
             ),
+            // Row for Switch 2 and Socket 2
             Row(
               children: [
                 Expanded(
@@ -100,14 +114,14 @@ class Body extends StatelessWidget {
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
                       itsOn: model.isSwitch2On,
-                      switchButton: model.Switch2 ?? () {},
+                      switchButton: model.Switch2,
                       onTap: () {
-                        // Navigator.of(context).pushNamed(Socket.routeName);
+                        // Add navigation or additional action here
                       },
                       iconAsset: 'assets/svg/light.svg',
                       device: 'Switch 2',
                       deviceCount: '1 device',
-                      switchFav: model.switch2Fav ?? () {},
+                      switchFav: model.switch2Fav,
                       isFav: model.isSwitch2Fav,
                     ),
                   ),
@@ -117,47 +131,24 @@ class Body extends StatelessWidget {
                     padding: EdgeInsets.all(getProportionateScreenHeight(5)),
                     child: DarkContainer(
                       itsOn: model.isSocket2On,
-                      switchButton: model.sk2Switch ?? () {},
+                      switchButton: model.sk2Switch,
                       onTap: () {
-                        // Navigator.of(context).pushNamed(Socket.routeName);
+                        // Add navigation or additional action here
                       },
                       iconAsset: 'assets/svg/fan.svg',
                       device: 'Socket 2',
-                      deviceCount: '1 devices',
-                      switchFav: model.socket2Fav ?? () {},
+                      deviceCount: '1 device',
+                      switchFav: model.socket2Fav,
                       isFav: model.isSocket2Fav,
                     ),
                   ),
                 ),
               ],
             ),
-
+            // Placeholder for additional widgets
             Padding(
               padding: EdgeInsets.all(getProportionateScreenHeight(8)),
-              // child: const AddNewDevice(),
             ),
-            //   ElevatedButton(
-            //     onPressed: () {
-            //       //   Navigator.of(context).pushNamed(SetEventScreen.routeName);
-            //     },
-            //     child: const Text(
-            //       'To SetEventScreen',
-            //       style: TextStyle(
-            //         color: Colors.black,
-            //       ),
-            //     ),
-            //   ),
-            //   ElevatedButton(
-            //     onPressed: () {
-            //       // Navigator.of(context).pushNamed(SmartTV.routeName);
-            //     },
-            //     child: const Text(
-            //       'Smart TV Screen',
-            //       style: TextStyle(
-            //         color: Colors.black,
-            //       ),
-            //     ),
-            //   ),
           ],
         ),
       ),

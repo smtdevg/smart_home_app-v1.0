@@ -16,7 +16,7 @@ void setupLocator() {
 
   // Đăng ký WebSocketService
   getIt
-      .registerLazySingleton(() => WebSocketService('ws://192.168.1.155:1901'));
+      .registerLazySingleton(() => WebSocketService());
 
   // Đăng ký HomePageViewModel với các dependency
   getIt.registerFactory(() => HomePageViewModel(

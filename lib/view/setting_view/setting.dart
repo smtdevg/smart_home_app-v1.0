@@ -1,6 +1,5 @@
-import 'package:app_smart_home/provider/server.dart';
+import 'package:app_smart_home/view/setting_view/config.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_smart_home/config/size_config.dart';
 
 class SettingPage extends StatefulWidget {
@@ -17,27 +16,20 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();
-    // Đảm bảo giá trị được lấy từ Provider khi khởi tạo
-    final serverProvider =
-        Provider.of<ServerAddressProvider>(context, listen: false);
-    _ipController.text = serverProvider.ipAddress;
+    _loadIpAddress();
   }
 
-  @override
-  void dispose() {
-    _ipController.dispose();
-    super.dispose();
+  Future<void> _loadIpAddress() async {
+    // Lấy giá trị từ ConfigManager
+    _ipController.text = ConfigManager().apiUrl.split("//")[1].split(":")[0];
   }
 
-  void _saveIpAddress() {
+  void _saveIpAddress() async {
     final newIp = _ipController.text.trim();
 
-    if (RegExp(
-            r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$') // Kiểm tra định dạng IPv4 cơ bản
-        .hasMatch(newIp)) {
-      final serverProvider =
-          Provider.of<ServerAddressProvider>(context, listen: false);
-      serverProvider.setIpAddress(newIp);
+    if (RegExp(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$').hasMatch(newIp)) {
+      // Cập nhật IP trong ConfigManager
+      await ConfigManager().updateIpAddress(newIp);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cập nhật địa chỉ IP thành công!')),
@@ -58,12 +50,12 @@ class _SettingPageState extends State<SettingPage> {
             toolbarHeight: getProportionateScreenHeight(50),
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.black),
-            title: const Text('Network Setting'),
+            title: const Text('Cài đặt mạng'),
           ),
           Container(
             margin: const EdgeInsets.only(top: 20),
             alignment: Alignment.center,
-            child: const Text('IP Address'),
+            child: const Text('Địa chỉ IP'),
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -91,7 +83,7 @@ class _SettingPageState extends State<SettingPage> {
             margin: const EdgeInsets.all(10),
             child: OutlinedButton(
               onPressed: _saveIpAddress,
-              child: const Text('Save'),
+              child: const Text('Lưu'),
             ),
           ),
         ],

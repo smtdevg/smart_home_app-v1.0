@@ -2,12 +2,15 @@ import 'package:app_smart_home/provider/getit.dart';
 import 'package:app_smart_home/provider/server.dart';
 import 'package:app_smart_home/routes/routes.dart';
 import 'package:app_smart_home/service/navigation_service.dart';
+import 'package:app_smart_home/view/setting_view/config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_smart_home/view/home_view/home.dart';
 
 void main() async {
   setupLocator();
+  WidgetsFlutterBinding.ensureInitialized();
+  await ConfigManager().loadIpAddress();
   runApp(const MyApp());
 }
 

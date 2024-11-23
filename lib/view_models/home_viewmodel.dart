@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:app_smart_home/service/api_service.dart';
 import 'package:app_smart_home/service/websocket_service.dart';
 
+
 class HomePageViewModel extends BaseModel {
   final ApiService apiService;
   final WebSocketService webSocketService;
@@ -50,15 +51,15 @@ class HomePageViewModel extends BaseModel {
   Future<void> fetchDeviceStatuses() async {
     try {
       final devices = [
-        {"id": "1", "key": "isACON"},
-        {"id": "2", "key": "isSwitch1On"},
-        {"id": "3", "key": "isSocket1On"},
-        {"id": "4", "key": "isSwitch2On"},
-        {"id": "5", "key": "isSocket2On"}
+        {"id": " 1", "key": "isACON"},
+        {"id": " 2", "key": "isSwitch1On"},
+        {"id": " 3", "key": "isSocket1On"},
+        {"id": " 4", "key": "isSwitch2On"},
+        {"id": " 5", "key": "isSocket2On"}
       ];
 
       for (var device in devices) {
-        final status = await apiService.getDeviceStatus(device["id"]!);
+        final status = await apiService.getDeviceStatus("switch",device["id"]!);
         final buttonStatus = status['status']['button1'] as bool;
         updateState(device["key"]!, buttonStatus);
       }
@@ -109,7 +110,7 @@ class HomePageViewModel extends BaseModel {
       webSocketService.sendDeviceStatus(model);
 
       // Gửi qua API để xác nhận
-      await apiService.updateDeviceStatus(deviceId, newStatus);
+      await apiService.updateDeviceStatus("switch",deviceId, newStatus);
       print("Device $deviceId status updated successfully.");
     } catch (e) {
       print("Failed to update device $deviceId status: $e");

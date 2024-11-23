@@ -107,10 +107,13 @@ class Body extends StatelessWidget {
           ),
           // Điều khiển chế độ
           Text('Mode', style: Theme.of(context).textTheme.displayMedium),
+          SizedBox(
+            height: getProportionateScreenHeight(10),
+          ),
           ToggleButtons(
             selectedColor: Colors.white,
             fillColor: const Color(0xFF464646),
-            renderBorder: false,
+            renderBorder: true,
             borderRadius: BorderRadius.circular(15),
             textStyle: Theme.of(context)
                 .textTheme
@@ -210,10 +213,13 @@ class Body extends StatelessWidget {
           ),
           // Điều khiển tốc độ gió
           Text('Fan speed', style: Theme.of(context).textTheme.displayMedium),
+          SizedBox(
+            height: getProportionateScreenHeight(10),
+          ),
           ToggleButtons(
             selectedColor: Colors.white,
             fillColor: const Color(0xFF464646),
-            renderBorder: false,
+            renderBorder: true,
             borderRadius: BorderRadius.circular(15),
             textStyle: Theme.of(context)
                 .textTheme
@@ -283,6 +289,7 @@ class Body extends StatelessWidget {
           SizedBox(
             height: getProportionateScreenHeight(20),
           ),
+
         ],
       ),
     );

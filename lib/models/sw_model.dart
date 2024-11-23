@@ -1,11 +1,11 @@
-class Device {
+class SwitchModel {
   final int id;
   final String name;
   final String typeDevice;
   final String room;
-  final Status status;
+  final SwitchStatusModel status;
 
-  Device({
+  SwitchModel({
     required this.id,
     required this.name,
     required this.typeDevice,
@@ -13,18 +13,16 @@ class Device {
     required this.status,
   });
 
-  // Chuyển đổi từ JSON sang object
-  factory Device.fromJson(Map<String, dynamic> json) {
-    return Device(
+  factory SwitchModel.fromJson(Map<String, dynamic> json) {
+    return SwitchModel(
       id: json['_id'],
       name: json['name'],
       typeDevice: json['typeDevice'],
       room: json['room'],
-      status: Status.fromJson(json['status']),
+      status: SwitchStatusModel.fromJson(json['status']),
     );
   }
 
-  // Chuyển đổi từ object sang JSON
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -36,17 +34,17 @@ class Device {
   }
 }
 
-class Status {
+class SwitchStatusModel {
   final bool button1;
   final bool button2;
 
-  Status({
+  SwitchStatusModel({
     required this.button1,
     required this.button2,
   });
 
-  factory Status.fromJson(Map<String, dynamic> json) {
-    return Status(
+  factory SwitchStatusModel.fromJson(Map<String, dynamic> json) {
+    return SwitchStatusModel(
       button1: json['button1'],
       button2: json['button2'],
     );

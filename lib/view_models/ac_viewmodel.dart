@@ -6,21 +6,38 @@ import 'package:app_smart_home/provider/base_model.dart';
 class ACViewModel extends BaseModel {
   final ApiService apiService;
 
-  bool isACon = true;
+  bool isACon = true; // Trạng thái bật/tắt của điều hòa
   double temperature = 26; // Giá trị nhiệt độ
   int mode = 2; // Chế độ gió (default: Cool)
   int fanSpeed = 3; // Tốc độ quạt (default: Medium)
-  List<bool> isSelected = [true, false, false, false]; // Trạng thái chế độ gió
-  List<bool> isSelected1 = [
-    true,
-    false,
-    false,
-    false
-  ]; // Trạng thái tốc độ quạt
+  List<bool> isSelected = [true, false, false, false]; // Chế độ gió
+  List<bool> isSelected1 = [true, false, false, false]; // Tốc độ quạt
+  String? errorMessage; // Biến lưu lỗi nếu có
+
+  Timer? _syncTimer; // Timer để đồng bộ trạng thái định kỳ
 
   ACViewModel(this.apiService) {
     loadState();
     fetchACStatus(); // Tải trạng thái từ server khi khởi tạo
+    startSync(); // Bắt đầu đồng bộ định kỳ
+  }
+
+  // Khởi động đồng bộ định kỳ với server
+  void startSync() {
+    _syncTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      fetchACStatus();
+    });
+  }
+
+  // Dừng đồng bộ
+  void stopSync() {
+    _syncTimer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    stopSync();
+    super.dispose();
   }
 
   // Lưu trạng thái vào SharedPreferences
@@ -52,41 +69,10 @@ class ACViewModel extends BaseModel {
     notifyListeners();
   }
 
-  // Gửi trạng thái tới server qua API
-  Future<void> updateACStatus() async {
-    final acData = {
-      "_id": 1, // ID thiết bị
-      "name": "Living Room AC",
-      "typeDevice": "AirConditioner",
-      "room": "Living Room",
-      "status": {
-        "on": isACon,
-        "temp": temperature,
-        "mode": mode,
-        "fanSpeed": fanSpeed,
-        "swing": false, // Tạm thời cố định
-      }
-    };
-
-    try {
-      await apiService.addAirConditioner(acData);
-      print("Air Conditioner status updated successfully.");
-    } catch (e) {
-      print("Failed to update Air Conditioner status: $e");
-      // Nếu HTTP request thất bại, tự động chuyển trạng thái về off
-      Future.delayed(const Duration(seconds: 1), () {
-        isACon = false;
-        saveState();
-        notifyListeners();
-        print("AC automatically turned off due to error.");
-      });
-    }
-  }
-
   // Lấy trạng thái từ server
   Future<void> fetchACStatus() async {
     try {
-      final acStatus = await apiService.getDeviceStatus("1"); // ID thiết bị
+      final acStatus = await apiService.getDeviceStatus("aircon","1"); // ID của thiết bị
       isACon = acStatus['status']['on'];
       temperature = acStatus['status']['temp'];
       mode = acStatus['status']['mode'];
@@ -103,15 +89,44 @@ class ACViewModel extends BaseModel {
       }
 
       saveState();
+      errorMessage = null; // Xóa thông báo lỗi nếu thành công
       notifyListeners();
     } catch (e) {
+      errorMessage = "Không thể kết nối đến server: $e";
       print("Failed to fetch Air Conditioner status: $e");
+      notifyListeners();
+    }
+  }
+
+  // Gửi trạng thái tới server
+  Future<void> updateACStatus() async {
+    final acData = {
+      "_id": 1, // ID thiết bị
+      "name": "Living Room AC",
+      "typeDevice": "AirConditioner",
+      "status": {
+        "on": isACon,
+        "temp": temperature,
+        "mode": mode,
+        "fanSpeed": fanSpeed,
+        "swing": false, // Tạm thời cố định
+      }
+    };
+
+    try {
+      await apiService.addAirConditioner(acData);
+      print("Air Conditioner status updated successfully.");
+      errorMessage = null; // Xóa thông báo lỗi nếu thành công
+    } catch (e) {
+      errorMessage = "Không thể cập nhật trạng thái: $e";
+      print("Failed to update Air Conditioner status: $e");
+      notifyListeners();
     }
   }
 
   // Cập nhật trạng thái nhiệt độ
   void setTemperature(double value) {
-    temperature = value;
+    temperature = value.roundToDouble();
     updateACStatus();
     saveState();
     notifyListeners();
@@ -133,7 +148,7 @@ class ACViewModel extends BaseModel {
     for (int i = 0; i < isSelected1.length; i++) {
       isSelected1[i] = i == index;
     }
-    fanSpeed = index + 1; // Cập nhật tốc độ quạt
+    fanSpeed = index + 1;
     updateACStatus();
     saveState();
     notifyListeners();
