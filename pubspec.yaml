@@ -44,8 +44,9 @@ dependencies:
   web_socket_channel: ^3.0.1
   sleek_circular_slider: ^2.0.1
   sliding_up_panel: ^2.0.0+1
-  shared_preferences: ^2.0.13
+  shared_preferences: ^2.3.3
 
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

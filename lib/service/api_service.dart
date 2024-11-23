@@ -69,7 +69,7 @@ class ApiService {
 
 Future<List<Map<String, dynamic>>> getAllDevices(String deviceType) async {
   final response = await http.get(
-    Uri.parse('$apiUrl/$deviceType/getall'),
+    Uri.parse('/$deviceType/getall'),
     headers: {'Content-Type': 'application/json'},
   );
 
