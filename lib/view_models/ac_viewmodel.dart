@@ -72,11 +72,7 @@ class ACViewModel extends BaseModel {
   // Lấy trạng thái từ server
   Future<void> fetchACStatus() async {
     try {
-<<<<<<< HEAD
       final acStatus = await apiService.getDeviceStatus("aircon","1"); // ID của thiết bị
-=======
-      final acStatus = await apiService.getDeviceStatus("1"); // ID của thiết bị
->>>>>>> b2d3443e221efe9316de5882c82364eb2afa65eb
       isACon = acStatus['status']['on'];
       temperature = acStatus['status']['temp'];
       mode = acStatus['status']['mode'];
@@ -94,7 +90,6 @@ class ACViewModel extends BaseModel {
 
       saveState();
       errorMessage = null; // Xóa thông báo lỗi nếu thành công
-<<<<<<< HEAD
       notifyListeners();
     } catch (e) {
       errorMessage = "Không thể kết nối đến server: $e";
@@ -126,40 +121,6 @@ class ACViewModel extends BaseModel {
       errorMessage = "Không thể cập nhật trạng thái: $e";
       print("Failed to update Air Conditioner status: $e");
       notifyListeners();
-=======
-      notifyListeners();
-    } catch (e) {
-      errorMessage = "Không thể kết nối đến server: $e";
-      print("Failed to fetch Air Conditioner status: $e");
-      notifyListeners();
-    }
-  }
-
-  // Gửi trạng thái tới server
-  Future<void> updateACStatus() async {
-    final acData = {
-      "_id": 1, // ID thiết bị
-      "name": "Living Room AC",
-      "typeDevice": "AirConditioner",
-      "room": "Living Room",
-      "status": {
-        "on": isACon,
-        "temp": temperature,
-        "mode": mode,
-        "fanSpeed": fanSpeed,
-        "swing": false, // Tạm thời cố định
-      }
-    };
-
-    try {
-      await apiService.addAirConditioner(acData);
-      print("Air Conditioner status updated successfully.");
-      errorMessage = null; // Xóa thông báo lỗi nếu thành công
-    } catch (e) {
-      errorMessage = "Không thể cập nhật trạng thái: $e";
-      print("Failed to update Air Conditioner status: $e");
-      notifyListeners();
->>>>>>> b2d3443e221efe9316de5882c82364eb2afa65eb
     }
   }
 
