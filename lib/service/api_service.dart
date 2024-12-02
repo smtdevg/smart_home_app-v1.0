@@ -35,6 +35,7 @@ class ApiService {
     }
   }
 
+
   // Hàm lấy trạng thái của một thiết bị bất kỳ
   Future<Map<String, dynamic>> getDeviceStatus(String deviceType, String id) async {
     final response = await http.get(
@@ -65,24 +66,23 @@ class ApiService {
       throw Exception("Failed to update device status.");
     }
   }
-}
-
-Future<List<Map<String, dynamic>>> getAllDevices(String deviceType) async {
-  final response = await http.get(
-    Uri.parse('/$deviceType/getall'),
-    headers: {'Content-Type': 'application/json'},
-  );
-
-  if (response.statusCode == 200) {
-    try {
-      final List<dynamic> devices = jsonDecode(response.body);
-      return devices.cast<Map<String, dynamic>>(); // Trả về danh sách các thiết bị
-    } catch (e) {
-      throw Exception('Invalid JSON format: ${response.body}');
+  // Lấy tất cả các thiết bị của một loại (switch, socket, aircon, lock)
+  Future<List<Map<String, dynamic>>> getAllDevices(String deviceType) async {
+    final response = await http.get(
+      Uri.parse('$apiUrl/$deviceType/getall'),  // Sửa lại để thêm apiUrl
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      try {
+        final List<dynamic> devices = jsonDecode(response.body);
+        return devices.cast<Map<String, dynamic>>();  // Trả về danh sách các thiết bị
+      } catch (e) {
+        throw Exception('Invalid JSON format: ${response.body}');
+      }
+    } else {
+      print('Error response: ${response.statusCode} ${response.body}');
+      throw Exception('Failed to fetch devices of type $deviceType');
     }
-  } else {
-    print('Error response: ${response.statusCode} ${response.body}');
-    throw Exception('Failed to fetch devices of type $deviceType');
   }
 }
 
