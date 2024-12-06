@@ -1,10 +1,10 @@
 class DeviceModel {
-  final String id; // ID của thiết bị
-  final String name; // Tên thiết bị
-  final String type; // Loại thiết bị (aircon, lock, switch, socket)
-  final String room; // Phòng của thiết bị
-  final Map<String, dynamic> status; // Trạng thái thiết bị dưới dạng Map
-  final String icon; // Icon của thiết bị
+  final String id;
+  final String name;
+  final String type;
+  final String room;
+  final Map<String, dynamic> status;
+  final String icon;
 
   DeviceModel({
     required this.id,
@@ -15,25 +15,24 @@ class DeviceModel {
     required this.icon,
   });
 
-  factory DeviceModel.fromJson(Map<String, dynamic> json, String type) {
-    dynamic rawStatus = json['status'];
-
-    // Xử lý nếu `status` không phải là Map
-    final status = rawStatus is Map<String, dynamic>
-        ? rawStatus // Nếu là Map, giữ nguyên
-        : {'on': rawStatus ?? false}; // Nếu là bool hoặc null, chuyển thành Map
+  factory DeviceModel.fromJson(Map<String, dynamic> json, String endpoint) {
+    final typeMapping = {
+      'aircon': 'AirConditioner',
+      'lock': 'Lock',
+      'switch': 'Switch',
+      'socket': 'Socket',
+    };
 
     return DeviceModel(
       id: json['_id'].toString(),
       name: json['name'] ?? 'Unknown Device',
-      type: type,
+      type: typeMapping[endpoint] ?? endpoint,
       room: json['room'] ?? 'Unknown Room',
-      status: status,
-      icon: _getIconPath(type),
+      status: json['status'] ?? {},
+      icon: _getIconPath(typeMapping[endpoint] ?? endpoint),
     );
   }
 
-  // Đường dẫn icon tương ứng với loại thiết bị
   static String _getIconPath(String type) {
     switch (type.toLowerCase()) {
       case 'airconditioner':
@@ -46,21 +45,6 @@ class DeviceModel {
         return 'assets/svg/socket.svg';
       default:
         return 'assets/svg/default.svg';
-    }
-  }
-
-  // Lấy trạng thái boolean cụ thể từ `status`
-  bool get isOn {
-    if (type.toLowerCase() == 'airconditioner') {
-      return status['on'] ?? false; // AirConditioner dùng `on`
-    } else if (type.toLowerCase() == 'lock') {
-      return status['button'] ?? false; // Lock dùng `button`
-    } else if (type.toLowerCase() == 'switch') {
-      return status['button1'] ?? false; // Switch dùng `button1`
-    } else if (type.toLowerCase() == 'socket') {
-      return status['on'] ?? false; // Socket dùng `on`
-    } else {
-      return false;
     }
   }
 }

@@ -7,9 +7,9 @@ class ACViewModel extends BaseModel {
   final ApiService apiService;
 
   bool isACon = true; // Trạng thái bật/tắt của điều hòa
-  double temperature = 26; // Giá trị nhiệt độ
-  int mode = 2; // Chế độ gió (default: Cool)
-  int fanSpeed = 3; // Tốc độ quạt (default: Medium)
+  double temperature = 25; // Giá trị nhiệt độ
+  int mode = 1;
+  int fanSpeed = 1;
   List<bool> isSelected = [true, false, false, false]; // Chế độ gió
   List<bool> isSelected1 = [true, false, false, false]; // Tốc độ quạt
   String? errorMessage; // Biến lưu lỗi nếu có
@@ -22,7 +22,7 @@ class ACViewModel extends BaseModel {
     startSync(); // Bắt đầu đồng bộ định kỳ
   }
 
-  // Khởi động đồng bộ định kỳ với server
+  // Khởi động liền đồng bộ định kỳ với server
   void startSync() {
     _syncTimer = Timer.periodic(const Duration(minutes: 1), (_) {
       fetchACStatus();

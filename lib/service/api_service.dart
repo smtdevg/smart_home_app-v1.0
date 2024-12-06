@@ -21,20 +21,6 @@ class ApiService {
     }
   }
 
-  // Lấy trạng thái của điều hòa từ API
-  Future<Map<String, dynamic>> getAirconStatus(String id) async {
-    final response = await http.get(
-      Uri.parse('$apiUrl/aircon/get/$id'),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body); // Trả về dữ liệu JSON của điều hòa
-    } else {
-      throw Exception('Failed to fetch Aircon status');
-    }
-  }
-
 
   // Hàm lấy trạng thái của một thiết bị bất kỳ
   Future<Map<String, dynamic>> getDeviceStatus(String deviceType, String id) async {
@@ -52,11 +38,11 @@ class ApiService {
 
 
   //  Cập nhật 1 thiết bị
-  Future<void> updateDeviceStatus(String deviceType,id, bool status) async {
+  Future<void> updateDeviceStatus(String endpoint, String id, Map<String, dynamic> status) async {
     final response = await http.put(
-      Uri.parse('$apiUrl/$deviceType/update/$id'),
+      Uri.parse('$apiUrl/$endpoint/update/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'status': status}),
+      body: jsonEncode({'status': status}), // Gửi toàn bộ trạng thái
     );
 
     if (response.statusCode == 200) {
@@ -66,6 +52,8 @@ class ApiService {
       throw Exception("Failed to update device status.");
     }
   }
+
+
   // Lấy tất cả các thiết bị của một loại (switch, socket, aircon, lock)
   Future<List<Map<String, dynamic>>> getAllDevices(String deviceType) async {
     final response = await http.get(

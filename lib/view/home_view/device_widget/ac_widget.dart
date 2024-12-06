@@ -20,7 +20,7 @@ class ACWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: DarkContainer(
-          itsOn: device.isOn, // Sử dụng trạng thái từ DeviceModel
+          itsOn: device.status['on'], // Sử dụng trạng thái từ DeviceModel
           switchButton: () => model.toggleDevice(device),
           onTap: () {
             Navigator.of(context).pushNamed(ACPage.routeName);
