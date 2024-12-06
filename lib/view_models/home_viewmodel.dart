@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:app_smart_home/models/device_model.dart';
 import 'package:app_smart_home/provider/base_model.dart';
 import 'package:app_smart_home/view/home_view/home.dart';
@@ -7,97 +8,92 @@ import 'package:flutter/material.dart';
 import 'package:app_smart_home/service/api_service.dart';
 import 'package:app_smart_home/service/websocket_service.dart';
 
-
 class HomePageViewModel extends BaseModel {
   final ApiService apiService;
   final WebSocketService webSocketService;
 
   int selectedIndex = 0;
   final PageController pageController = PageController();
-
-  // Trạng thái thiết bị
-  bool isSocket1On = false;
-  bool isSocket2On = false;
-  bool isACON = false;
-  bool isSwitch1On = false;
-  bool isSwitch2On = false;
-
+  List<DeviceModel> devices = [];
+  Timer? _refreshTimer; // Hẹn giờ để làm mới thiết bị tự động
 
   HomePageViewModel({
     required this.apiService,
     required this.webSocketService,
   });
 
-  List<DeviceModel> devices = [];
-
-  // Getter bật/tắt thiết bị, gọi toggleDevice
-  get acSwitch => () => toggleDevice("1", "isACON", isACON);
-  get Switch1 => () => toggleDevice("2", "isSwitch1On", isSwitch1On);
-  get sk1Switch => () => toggleDevice("3", "isSocket1On", isSocket1On);
-  get Switch2 => () => toggleDevice("4", "isSwitch2On", isSwitch2On);
-  get sk2Switch => () => toggleDevice("5", "isSocket2On", isSocket2On);
-
-
-  // Lấy trạng thái thiết bị từ API
-  Future<void> fetchDeviceStatuses() async {
+  // Lấy danh sách thiết bị từ API
+  Future<void> fetchDevices() async {
     try {
-      final switches = await apiService.getAllDevices('switch');
-      final sockets = await apiService.getAllDevices('socket');
-      final aircons = await apiService.getAllDevices('aircon');
-      final locks = await apiService.getAllDevices('lock');
-      final devices = [
-        {"id": " 1", "key": "isACON"},
-        {"id": " 2", "key": "isSwitch1On"},
-        {"id": " 3", "key": "isSocket1On"},
-        {"id": " 4", "key": "isSwitch2On"},
-        {"id": " 5", "key": "isSocket2On"}
+      final aircons = await apiService.getAllDevices('aircon') ?? [];
+      final locks = await apiService.getAllDevices('lock') ?? [];
+      final switches = await apiService.getAllDevices('switch') ?? [];
+      final sockets = await apiService.getAllDevices('socket') ?? [];
+
+      devices = [
+        ...aircons.map((e) {
+          print('Aircon data: $e'); // Log dữ liệu từng thiết bị
+          return DeviceModel.fromJson(e, 'airconditioner');
+        }),
+        ...locks.map((e) => DeviceModel.fromJson(e, 'lock')),
+        ...switches.map((e) => DeviceModel.fromJson(e, 'switch')),
+        ...sockets.map((e) => DeviceModel.fromJson(e, 'socket')),
       ];
 
-      for (var device in devices) {
-        final status = await apiService.getDeviceStatus("switch",device["id"]!);
-        final buttonStatus = status['status']['button1'] as bool;
-        updateState(device["key"]!, buttonStatus);
-      }
-
+      print('Devices after mapping: $devices'); // Log toàn bộ danh sách thiết bị
       notifyListeners();
     } catch (e) {
-      print('Failed to fetch device statuses: $e');
+      print('Failed to fetch devices: $e');
     }
   }
 
-  // Cập nhật trạng thái thiết bị cục bộ
-  void updateState(String key, bool status) {
-    switch (key) {
-      case "isACON":
-        isACON = status;
-        break;
-      case "isSwitch1On":
-        isSwitch1On = status;
-        break;
-      case "isSocket1On":
-        isSocket1On = status;
-        break;
-      case "isSwitch2On":
-        isSwitch2On = status;
-        break;
-      case "isSocket2On":
-        isSocket2On = status;
-        break;
-    }
-  }
 
-  // Gửi trạng thái thiết bị qua WebSocket và xử lý lỗi
-  Future<void> toggleDevice(
-      String deviceId, String key, bool currentStatus) async {
-    final newStatus = !currentStatus;
+
+
+
+  Future<void> toggleDevice(DeviceModel device) async {
+    String statusKey;
+
+    // Xác định khóa trạng thái dựa trên loại thiết bị
+    switch (device.type.toLowerCase()) {
+      case 'airconditioner':
+        statusKey = 'on';
+        break;
+      case 'lock':
+        statusKey = 'button';
+        break;
+      case 'switch':
+        statusKey = 'button1'; // Hoặc xử lý cho 'button2' nếu cần
+        break;
+      case 'socket':
+        statusKey = 'on';
+        break;
+      default:
+        print("Unknown device type: ${device.type}");
+        return;
+    }
+
+    final bool currentStatus = device.status[statusKey] ?? false; // Lấy trạng thái hiện tại
+    final bool newStatus = !currentStatus; // Đảo ngược trạng thái
 
     // Cập nhật trạng thái cục bộ ngay lập tức
-    updateState(key, newStatus);
+    final deviceIndex = devices.indexWhere((d) => d.id == device.id);
+    if (deviceIndex == -1) return;
+
+    devices[deviceIndex] = DeviceModel(
+      id: device.id,
+      name: device.name,
+      type: device.type,
+      room: device.room,
+      status: {...device.status, statusKey: newStatus}, // Cập nhật trạng thái
+      icon: device.icon,
+    );
     notifyListeners();
 
+    // Chuẩn bị dữ liệu gửi qua WebSocket và API
     final model = {
-      "_id": deviceId,
-      "status": {"button1": newStatus}
+      "_id": device.id,
+      "status": {statusKey: newStatus}, // Trạng thái mới
     };
 
     try {
@@ -105,21 +101,40 @@ class HomePageViewModel extends BaseModel {
       webSocketService.sendDeviceStatus(model);
 
       // Gửi qua API để xác nhận
-      await apiService.updateDeviceStatus("switch",deviceId, newStatus);
-      print("Device $deviceId status updated successfully.");
+      await apiService.updateDeviceStatus(device.type, device.id, newStatus);
+      print("Device ${device.id} status updated successfully.");
     } catch (e) {
-      print("Failed to update device $deviceId status: $e");
+      print("Failed to update device ${device.id} status: $e");
 
-      // Nếu lỗi xảy ra, tự động đặt trạng thái về lại sau 1 giây
+      // Nếu lỗi xảy ra, hoàn nguyên trạng thái sau 1 giây
       Future.delayed(const Duration(seconds: 1), () {
-        updateState(key, currentStatus);
+        devices[deviceIndex] = DeviceModel(
+          id: device.id,
+          name: device.name,
+          type: device.type,
+          room: device.room,
+          status: {...device.status, statusKey: currentStatus}, // Hoàn nguyên trạng thái
+          icon: device.icon,
+        );
         notifyListeners();
-        print("Device $deviceId automatically reverted due to error.");
+        print("Device ${device.id} automatically reverted due to error.");
       });
     }
   }
 
 
+  // Bắt đầu làm mới tự động
+  void startAutoRefresh() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      await fetchDevices();
+    });
+  }
+
+  // Dừng làm mới tự động
+  void stopAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+  }
 
   // Xử lý khi nhấn vào các mục trên bottom navigation bar
   void onItemTapped(BuildContext context, int index) {
@@ -141,5 +156,11 @@ class HomePageViewModel extends BaseModel {
         break;
     }
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    stopAutoRefresh(); // Đảm bảo dừng hẹn giờ khi không dùng nữa
+    super.dispose();
   }
 }
