@@ -91,15 +91,15 @@ class HomePageViewModel extends BaseModel {
         icon: originalDevice.icon,
       );
 
-      notifyListeners(); // Cập nhật giao diện
+      notifyListeners();
 
       // Chuẩn bị payload để gửi lên API
       final payload = {
-        "_id": originalDevice.id, // Luôn dùng ID gốc (1123)
-        "status": updatedStatus, // Toàn bộ trạng thái (button1 và button2)
-        "name": originalDevice.name,
+        "_id": originalDevice.id,
+        "status": updatedStatus,
+        // "name": originalDevice.name,
         "typeDevice": originalDevice.type,
-        "room": originalDevice.room,
+        // "room": originalDevice.room,
       };
 
       try {
@@ -139,9 +139,9 @@ class HomePageViewModel extends BaseModel {
       final payload = {
         "_id": originalDevice.id, // Luôn dùng ID gốc (1123)
         "status": updatedStatus, // Toàn bộ trạng thái (button1 và button2)
-        "name": originalDevice.name,
+        // "name": originalDevice.name,
         "typeDevice": originalDevice.type,
-        "room": originalDevice.room,
+        // "room": originalDevice.room,
       };
 
       try {
