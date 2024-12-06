@@ -20,41 +20,41 @@ class Body extends StatelessWidget {
         if (model.devices.isEmpty) {
           return Center(
             child: Text(
-              'No devices found',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .titleLarge,
+              'Đang tìm thiết bị...',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           );
         }
 
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10.0,
-            mainAxisSpacing: 10.0,
-          ),
-          itemCount: model.devices.length,
-          itemBuilder: (context, index) {
-            final device = model.devices[index];
-            switch (device.type.toLowerCase()) {
-              case 'airconditioner':
-                return ACWidget(device: device, model: model);
-              case 'lock':
-                return LockWidget(device: device, model: model);
-              case 'switch':
-                return SwitchWidget(device: device, model: model);
-              case 'socket':
-                return SocketWidget(device: device, model: model);
-              default:
-                return const SizedBox
-                    .shrink(); // Nếu không khớp, hiển thị trống
-            }
-          },
-        );
+        return SingleChildScrollView(
+            padding: const EdgeInsets.all(10.0),
+            child:
+            GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 10.0,
+        ),
+        itemCount: model.devices.length,
+        itemBuilder: (context, index) {
+        final device = model.devices[index];
+
+        switch (device.type.toLowerCase()) {
+        case 'airconditioner':
+        return ACWidget(device: device, model: model);
+        case 'lock':
+        return LockWidget(device: device, model: model);
+        case 'switch':
+        return SwitchWidget(device: device, model: model);
+        case 'socket':
+        return SocketWidget(device: device, model: model);
+        default:
+        return const SizedBox.shrink();
+        }
+        },
+        ));
       },
     );
   }

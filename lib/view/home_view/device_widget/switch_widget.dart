@@ -3,6 +3,8 @@ import 'package:app_smart_home/models/device_model.dart';
 import 'package:app_smart_home/view/home_view/dark_container.dart';
 import 'package:app_smart_home/view_models/home_viewmodel.dart';
 
+import '../../../config/size_config.dart';
+
 class SwitchWidget extends StatelessWidget {
   final DeviceModel device;
   final HomePageViewModel model;
@@ -19,31 +21,32 @@ class SwitchWidget extends StatelessWidget {
     final button2Status = device.status['button2'] ?? false;
 
     return Padding(
-      padding: const EdgeInsets.all(8.0), // Padding chung cho các widget
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start, // Sắp xếp các widget theo hàng ngang
+      padding: const EdgeInsets.all(8.0), // Thêm padding giữa các widget
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // Widget cho Button 1 của Switch
           Expanded(
             child: DarkContainer(
               itsOn: button1Status,
               switchButton: () => model.toggleDevice(device, 'button1'),
-              onTap: () {}, // Không cần hành động cho toàn bộ container
+              onTap: () {}, //
               iconAsset: device.icon,
-              device: '${device.name} - Button 1', // Hiển thị tên Button 1
-              deviceCount: '1', // Số thứ tự button
+              device: '${device.name}',
+              deviceCount: 'Button 1',
             ),
           ),
-          const SizedBox(width: 10), // Khoảng cách giữa button 1 và button 2
+          SizedBox(
+            height: getProportionateScreenHeight(10),
+          ),
           // Widget cho Button 2 của Switch
           Expanded(
             child: DarkContainer(
               itsOn: button2Status,
               switchButton: () => model.toggleDevice(device, 'button2'),
-              onTap: () {}, // Không cần hành động cho toàn bộ container
+              onTap: () {},
               iconAsset: device.icon,
-              device: '${device.name} - Button 2', // Hiển thị tên Button 2
-              deviceCount: '2', // Số thứ tự button
+              device: '${device.name}',
+              deviceCount: 'Button 2',
             ),
           ),
         ],

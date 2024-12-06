@@ -2,8 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfigManager {
   static final ConfigManager _instance = ConfigManager._internal();
-  String apiUrl = "http://192.168.1.1:1601"; // Giá trị mặc định
-  String websocketUrl = "ws://192.168.1.1:1901"; // Giá trị mặc định
+  String apiUrl = "http://192.168.100.203:1601"; // Giá trị mặc định
+  String websocketUrl = "ws://192.168.100.203:1901"; // Giá trị mặc định
 
   factory ConfigManager() {
     return _instance;

@@ -4,11 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class DarkContainer extends StatelessWidget {
   final String iconAsset;
-  final VoidCallback? onTap; // Hành động khi nhấn vào toàn bộ container (có thể null)
-  final String device; // Tên thiết bị
-  final String deviceCount; // Thông tin bổ sung
-  final bool itsOn; // Trạng thái bật/tắt
-  final VoidCallback? switchButton; // Hành động khi nhấn nút chuyển trạng thái (có thể null)
+  final VoidCallback? onTap;
+  final String device;
+  final String deviceCount;
+  final bool itsOn;
+  final VoidCallback? switchButton;
 
   const DarkContainer({
     super.key,
@@ -23,7 +23,7 @@ class DarkContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap ?? () {}, // Nếu không có hành động cụ thể, để mặc định là rỗng
+      onTap: onTap ?? () {},
       child: Container(
         width: getProportionateScreenWidth(140),
         height: getProportionateScreenHeight(140),

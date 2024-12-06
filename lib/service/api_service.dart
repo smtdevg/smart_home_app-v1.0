@@ -57,13 +57,13 @@ class ApiService {
   // Lấy tất cả các thiết bị của một loại (switch, socket, aircon, lock)
   Future<List<Map<String, dynamic>>> getAllDevices(String deviceType) async {
     final response = await http.get(
-      Uri.parse('$apiUrl/$deviceType/getall'),  // Sửa lại để thêm apiUrl
+      Uri.parse('$apiUrl/$deviceType/getall'),
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode == 200) {
       try {
         final List<dynamic> devices = jsonDecode(response.body);
-        return devices.cast<Map<String, dynamic>>();  // Trả về danh sách các thiết bị
+        return devices.cast<Map<String, dynamic>>();
       } catch (e) {
         throw Exception('Invalid JSON format: ${response.body}');
       }

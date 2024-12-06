@@ -15,10 +15,10 @@ class HomePage extends StatelessWidget {
     SizeConfig.init(context);
     return BaseView<HomePageViewModel>(
       onModelReady: (model) {
-        model.startAutoRefresh(); // Bắt đầu tự động làm mới khi HomePage được mở
+        model.startAutoRefresh(); //
       },
       onModelDisposed: (model) {
-        model.stopAutoRefresh(); // Dừng tự động làm mới khi HomePage bị đóng
+        model.stopAutoRefresh();
       },
       builder: (context, model, child) {
         return DefaultTabController(

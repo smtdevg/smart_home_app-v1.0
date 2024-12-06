@@ -34,48 +34,34 @@ class HomePageViewModel extends BaseModel {
   // Lấy danh sách thiết bị từ API
   Future<void> fetchDevices() async {
     try {
+      // Lấy danh sách thiết bị từ các API
       final switches = await apiService.getAllDevices('switch') ?? [];
-
-      devices = switches.map((e) {
-        return DeviceModel.fromJson(e, 'Switch'); // Giữ trạng thái đầy đủ (button1, button2)
-      }).toList();
-
       final aircons = await apiService.getAllDevices('aircon') ?? [];
       final locks = await apiService.getAllDevices('lock') ?? [];
       final sockets = await apiService.getAllDevices('socket') ?? [];
 
+      // Xử lý riêng cho Switch và Socket để giữ 2 widget cho mỗi switch
       devices = [
+        // AirConditioner
         ...aircons.map((e) => DeviceModel.fromJson(e, 'AirConditioner')),
+
+        // Lock
         ...locks.map((e) => DeviceModel.fromJson(e, 'Lock')),
-        ...switches.expand((e) {
-          final device = DeviceModel.fromJson(e, 'Switch');
-          return device.status.keys.map((key) => DeviceModel(
-            id: '${device.id}',
-            name: '${device.name}',
-            type: device.type,
-            room: device.room,
-            status: {key: device.status[key] ?? false},
-            icon: device.icon,
-          ));
-        }),
-        ...sockets.expand((e) {
-          final device = DeviceModel.fromJson(e, 'Socket');
-          return device.status.keys.map((key) => DeviceModel(
-            id: '${device.id}',
-            name: '${device.name} - $key',
-            type: device.type,
-            room: device.room,
-            status: {key: device.status[key] ?? false},
-            icon: device.icon,
-          ));
-        }),
+
+        // Switch: Mỗi Switch sẽ có 2 button, button1 và button2
+        ...switches.map((e) => DeviceModel.fromJson(e, 'Switch')),
+
+        // Socket: Tạo 1 widget cho mỗi socket
+        ...sockets.map((e) => DeviceModel.fromJson(e, 'Socket')),
       ];
 
+      // Thông báo cho giao diện cập nhật
       notifyListeners();
     } catch (e) {
       print('Failed to fetch devices: $e');
     }
   }
+
 
 
   Future<void> toggleDevice(DeviceModel device, [String? buttonKey]) async {
@@ -90,19 +76,18 @@ class HomePageViewModel extends BaseModel {
 
     // Xử lý riêng cho Switch
     if (device.type.toLowerCase() == 'switch' && buttonKey != null) {
-      // Cập nhật trạng thái của nút cụ thể
       final updatedStatus = {
         ...originalDevice.status,
-        buttonKey: !(originalDevice.status[buttonKey] ?? false), // Đảo ngược trạng thái nút
+        buttonKey: !(originalDevice.status[buttonKey] ?? false),
       };
 
-      // Cập nhật trạng thái cục bộ
+      // Cập nhật trạng thái cục bộ của Switch
       devices[deviceIndex] = DeviceModel(
         id: originalDevice.id,
         name: originalDevice.name,
         type: originalDevice.type,
         room: originalDevice.room,
-        status: updatedStatus, // Cập nhật trạng thái mới
+        status: updatedStatus,
         icon: originalDevice.icon,
       );
 
@@ -131,15 +116,14 @@ class HomePageViewModel extends BaseModel {
       return; // Kết thúc xử lý cho Switch
     }
 
-    // Xử lý logic chung cho các thiết bị khác
-    if (device.type.toLowerCase() != 'switch') {
-      final currentStatus = originalDevice.status.values.first ?? false;
+    // Xử lý riêng cho Switch
+    if (device.type.toLowerCase() == 'socket' && buttonKey != null) {
       final updatedStatus = {
         ...originalDevice.status,
-        'on': !currentStatus, // Đảo ngược trạng thái 'on' cho các thiết bị khác
+        buttonKey: !(originalDevice.status[buttonKey] ?? false),
       };
 
-      // Cập nhật trạng thái cục bộ
+      // Cập nhật trạng thái cục bộ của Switch
       devices[deviceIndex] = DeviceModel(
         id: originalDevice.id,
         name: originalDevice.name,
@@ -149,30 +133,63 @@ class HomePageViewModel extends BaseModel {
         icon: originalDevice.icon,
       );
 
-      notifyListeners();
+      notifyListeners(); // Cập nhật giao diện
 
-      // Chuẩn bị endpoint và payload cho các thiết bị khác
-      final endpoint = getEndpoint(originalDevice.type); // Lấy endpoint phù hợp
-      final payload = {'status': updatedStatus};
+      // Chuẩn bị payload để gửi lên API
+      final payload = {
+        "_id": originalDevice.id, // Luôn dùng ID gốc (1123)
+        "status": updatedStatus, // Toàn bộ trạng thái (button1 và button2)
+        "name": originalDevice.name,
+        "typeDevice": originalDevice.type,
+        "room": originalDevice.room,
+      };
 
       try {
-        await apiService.updateDeviceStatus(endpoint, originalDevice.id, payload);
-        print("Device ${originalDevice.id} updated successfully.");
+        // Gửi API với ID chính xác của Switch
+        await apiService.updateDeviceStatus('socket', originalDevice.id, payload);
+        print("Switch ${originalDevice.id} updated successfully.");
       } catch (e) {
-        print("Failed to update device ${originalDevice.id}: $e");
+        print("Failed to update switch ${originalDevice.id}: $e");
 
         // Hoàn nguyên trạng thái nếu có lỗi
         devices[deviceIndex] = originalDevice;
         notifyListeners();
       }
+      return; // Kết thúc xử lý cho Switch
+    }
+
+    // Xử lý logic chung cho các thiết bị khác (AirConditioner, Socket, Lock,...)
+    final currentStatus = originalDevice.status.values.first ?? false;
+    final updatedStatus = {
+      ...originalDevice.status,
+      'on': !currentStatus, // Đảo ngược trạng thái 'on' cho các thiết bị khác
+    };
+
+    devices[deviceIndex] = DeviceModel(
+      id: originalDevice.id,
+      name: originalDevice.name,
+      type: originalDevice.type,
+      room: originalDevice.room,
+      status: updatedStatus,
+      icon: originalDevice.icon,
+    );
+
+    notifyListeners();
+
+    final endpoint = getEndpoint(originalDevice.type); // Lấy endpoint phù hợp
+    final payload = {'status': updatedStatus};
+
+    try {
+      await apiService.updateDeviceStatus(endpoint, originalDevice.id, payload);
+      print("Device ${originalDevice.id} updated successfully.");
+    } catch (e) {
+      print("Failed to update device ${originalDevice.id}: $e");
+
+      // Hoàn nguyên trạng thái nếu có lỗi
+      devices[deviceIndex] = originalDevice;
+      notifyListeners();
     }
   }
-
-
-
-
-
-
 
 
 
