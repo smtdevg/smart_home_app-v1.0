@@ -42,23 +42,36 @@ class ApiService {
   }
 
 
-  //  Cập nhật 1 thiết bị
+
+  // Cập nhật 1 thiết bị và gửi status trực tiếp qua WebSocket
+  // Cập nhật 1 thiết bị và gửi status trực tiếp qua WebSocket
   Future<void> updateDeviceStatus(String endpoint, String id, dynamic status) async {
-    webSocketService.sendDeviceStatus({'payload':status
-    });
+    // Đảm bảo _id luôn là số (int)
+    if (status['_id'] is! int) {
+      status['_id'] = int.tryParse(status['_id'].toString()) ?? status['_id'];
+    }
+
     final response = await http.put(
       Uri.parse('$apiUrl/$endpoint/update/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(status), // Gửi trực tiếp status mà không cần bọc trong key-value
+      body: jsonEncode(status), // Gửi status trực tiếp mà không cần bọc trong key-value
     );
 
     if (response.statusCode == 200) {
       print("Cập nhật trạng thái thiết bị $id thành công: $status.");
+      try {
+        // Gửi status trực tiếp qua WebSocket
+        webSocketService.sendDeviceStatus(status);
+        print("Gửi trực tiếp status qua WebSocket thành công.");
+      } catch (e) {
+        print("Không thể gửi status qua WebSocket: $e");
+      }
     } else {
       print("Không thể cập nhật trạng thái thiết bị $id: ${response.body}");
       throw Exception("Không thể cập nhật trạng thái thiết bị.");
     }
   }
+
 
 
   // Lấy tất cả các thiết bị của một loại (switch, socket, aircon, lock)

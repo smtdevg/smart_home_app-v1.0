@@ -195,7 +195,7 @@ class HomePageViewModel extends BaseModel {
 
   // Bắt đầu làm mới tự động
   void startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
       await fetchDevices();
     });
   }

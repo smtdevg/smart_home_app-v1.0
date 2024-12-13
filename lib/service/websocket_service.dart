@@ -5,7 +5,7 @@ import 'package:web_socket_channel/status.dart' as status;
 import '../view/setting_view/config.dart';
 
 class WebSocketService {
-  final String socketUrl =ConfigManager().websocketUrl;
+  final String socketUrl = ConfigManager().websocketUrl;
   late WebSocketChannel channel;
   bool _isConnected = false;
 
@@ -25,12 +25,13 @@ class WebSocketService {
     }
   }
 
-  // Gửi dữ liệu qua WebSocket
-  void sendDeviceStatus(Map<String, dynamic> json) {
+  void sendDeviceStatus(dynamic status) {
     if (_isConnected) {
       try {
-        final jsonString = jsonEncode(json);
-        channel.sink.add(jsonString);
+        final jsonString = jsonEncode(status); // Mã hóa trực tiếp status thành chuỗi JSON
+        print('Trước khi gửi: $status');
+        print('Sau khi mã hóa thành JSON: $jsonString');
+        channel.sink.add(jsonString); // Gửi chuỗi JSON qua WebSocket
         print('Sent via WebSocket: $jsonString');
       } catch (e) {
         print('Failed to send data: $e');
@@ -41,7 +42,7 @@ class WebSocketService {
   }
 
   // Lắng nghe dữ liệu từ server
-  void listen(Function(Map<String, dynamic>) onMessage) {
+  void listen(Function(dynamic) onMessage) {
     if (_isConnected) {
       channel.stream.listen(
             (data) {
