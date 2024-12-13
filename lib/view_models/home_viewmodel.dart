@@ -147,7 +147,7 @@ class HomePageViewModel extends BaseModel {
       try {
         // Gửi API với ID chính xác của Switch
         await apiService.updateDeviceStatus('socket', originalDevice.id, payload);
-        print("Switch ${originalDevice.id} updated successfully.");
+        print("Switch ${originalDevice.id} updated successfully. $payload");
       } catch (e) {
         print("Failed to update switch ${originalDevice.id}: $e");
 

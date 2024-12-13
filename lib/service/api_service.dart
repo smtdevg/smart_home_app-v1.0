@@ -1,9 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../view/setting_view/config.dart';
+import 'package:app_smart_home/service/websocket_service.dart';
 
 class ApiService {
   final String apiUrl = ConfigManager().apiUrl;
+  final WebSocketService webSocketService; // Đã thêm WebSocketService làm thuộc tính
+
+  // Constructor thêm WebSocketService
+  ApiService({required this.webSocketService});
 
   // Phương thức thêm hoặc cập nhật thông tin điều hòa
   Future<Map<String, dynamic>> addAirConditioner(
@@ -38,18 +43,20 @@ class ApiService {
 
 
   //  Cập nhật 1 thiết bị
-  Future<void> updateDeviceStatus(String endpoint, String id, Map<String, dynamic> status) async {
+  Future<void> updateDeviceStatus(String endpoint, String id, dynamic status) async {
+    webSocketService.sendDeviceStatus({'payload':status
+    });
     final response = await http.put(
       Uri.parse('$apiUrl/$endpoint/update/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'status': status}), // Gửi toàn bộ trạng thái
+      body: jsonEncode(status), // Gửi trực tiếp status mà không cần bọc trong key-value
     );
 
     if (response.statusCode == 200) {
-      print("Device $id status updated successfully.");
+      print("Cập nhật trạng thái thiết bị $id thành công: $status.");
     } else {
-      print("Failed to update device $id status: ${response.body}");
-      throw Exception("Failed to update device status.");
+      print("Không thể cập nhật trạng thái thiết bị $id: ${response.body}");
+      throw Exception("Không thể cập nhật trạng thái thiết bị.");
     }
   }
 

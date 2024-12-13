@@ -12,7 +12,9 @@ void setupLocator() {
   getIt.registerLazySingleton(() => NavigationService());
 
   // Đăng ký ApiService
-  getIt.registerLazySingleton(() => ApiService());
+  getIt.registerLazySingleton(() => ApiService(
+    webSocketService: getIt<WebSocketService>(),
+  ));
 
   // Đăng ký WebSocketService
   getIt
